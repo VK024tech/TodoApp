@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taskify Frontend</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- start writing code -->
+    <main>
+      <div id="page-1" class="box">
+        <h1 class="heading">SignUp</h1>
+        <div class="elements">
+            <p class="tag">Username</p>
+            <input
+            id="SignUpUser"
+            class="text"
+            type="email"
+            required
+            placeholder="Type your Username"
+            />
+        </div>
+        <div class="elements">
+            <p class="tag">Email</p>
+            <input
+            id="SignUpEmail"
+            class="text"
+            type="email"
+            required
+            placeholder="Type your Email"
+            />
+        </div>
+        <div>
+            <p class="tag">Password</p>
+            <input
+            id="SignUpPassword"
+            class="text"
+            type="password"
+            required
+            placeholder="Type your password"
+            />
+        </div>
+        <button class="button" id="buttonSignup">SignUp</button>
+        <p class="signin">Already have an account? <span id="signin">Sign in</span></p>
+        <p id="error"></p>
+      </div>
+      <div id="page-2" class="box">
+        <h1 class="heading">SignIn</h1>
+
+        <div class="elements">
+          <p class="tag">Username</p>
+          <input
+            id="signinUsername"
+            class="text"
+            type="email"
+            placeholder="Type your email or Username"
+          />
+        </div>
+        <div>
+          <p class="tag">Password</p>
+          <input
+          id="SigninUserPassword"
+            class="text"
+            type="password"
+            placeholder="Type your password"
+          />
+        </div>
+        <button id="signinbutton" class="button">Sign In</button>
+        <p class="signin">New to Taskify? Create a new account! <span id="SignUp">Sign Up</span></p>
+        <p id="error2"></p>
+    </div>
+    <div id="page-3" class="box">
+        <h1 class="heading">Your todo list</h1>
+        
+        <input id="newTodo" class="div" type="text" placeholder="Add a new todo" />
+        
+        <button id="addTodo" class="todobutton">Add todo</button>
+        
+        <div id="todoList" class="elements newTodo">
+           
+        </div>
+        <p class="logout">Logged in Successfully <span>Log out</span></p>
+        <p id="error3"></p>
+    </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
