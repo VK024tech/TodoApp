@@ -4,39 +4,48 @@ const userImport = require("./user");
 const todo = express.Router();
 const fs = require("fs");
 const dataPath = "./data.txt";
+const jwt = require("jsonwebtoken");
 let savedData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+const JWT_SECRET = "soullesssoul";
 
 let getTodo = "";
 
 todo.use(express.json());
 
-todo.put("/todolist/:email", (req, res, next) => {
-  const data = req.body;
-  const getTodo = data.todo;
-  const userEmail = req.params.email; 
-
-  console.log(getTodo);
-  console.log(userEmail);
-
-  const userIndex = savedData.findIndex((curr) => curr.userEmail === userEmail);
-
-  if (userIndex !== -1) { 
-    if (!savedData[userIndex].todo) {
-      savedData[userIndex].todo = []; 
-    }
-    savedData[userIndex].todo.push(getTodo);
-
-    try {
-      fs.writeFileSync(dataPath, JSON.stringify(savedData));
-      console.log(data);
-      res.send({ response: "Todo updated" });
-    } catch (err) {
-      console.error("Error writing to file:", err);
-      res.status(500).send({ error: "Internal server error" });
-    }
-  } else {
-    res.status(404).send({ error: "User not found" });
+authentication = (req, res, next) => {
+  const token = req.headers.token;
+  const newToken = token.replaceAll('"', '')
+  // console.log(token);
+  const userDetails = jwt.verify(newToken, JWT_SECRET);
+  if(!token){
+    res.status(401).send({ message: "authorization failed!" });
   }
+
+  try {
+    req.body.userDetails = userDetails;
+    console.log(userDetails);
+    next()
+  } catch (error) {
+    
+  }
+};
+
+todo.get("/todolist", authentication, (req, res, next) => {
+  let userData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const UserTodoData = userData;
+  userDetails = req.body.userDetails;
+  console.log(userDetails);
+  userName = userDetails.userName;
+  userEmail = userDetails.userEmail;
+  userPassword = userDetails.userPassword;
+
+  const userExists = userData.some(
+    (curr) =>
+      (curr.userName === userName && curr.userPassword === userPassword) ||
+      (curr.userEmail === userEmail && curr.userPassword === userPassword)
+  );
+
+  res.send("nicee");
 });
 
 module.exports = todo;

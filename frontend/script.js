@@ -26,12 +26,11 @@ let signUsername = "";
 let signUserEmail = "";
 let userNewTodo = "";
 
-
 page1.style.display = "block";
 
 newTodo.addEventListener("input", (event) => {
   userNewTodo = event.target.value;
-  console.log(userNewTodo)
+  console.log(userNewTodo);
 });
 userNameSignup.addEventListener("input", (event) => {
   NewUserName = event.target.value;
@@ -73,16 +72,16 @@ userButtonSignUp.addEventListener("click", (event) => {
         userPassword: NewUserPassword,
       })
       .then((response) => {
-        // console.log(response);
+        console.log(response.data.token);
+        sessionStorage.setItem("authKey", JSON.stringify(response.data.token));
         page1.style.display = "none";
         page2.style.display = "none";
         page3.style.display = "block";
       })
       .catch((error) => {
         signUpError.style.display = "block";
-        signUpError.innerHTML =
-          "Looks like you already have an account, Please Sign In!";
-        // console.log(error.request.response);
+        signUpError.innerHTML = JSON.parse(error.request.response).message;
+        // console.log(error.request);
       });
   }
 });
@@ -105,54 +104,43 @@ signInButtonBig.addEventListener("click", (event) => {
       })
       .then((response) => {
         // console.log(response);
+        sessionStorage.setItem("authKey", JSON.stringify(response.data.token));
         page1.style.display = "none";
         page2.style.display = "none";
         page3.style.display = "block";
       })
       .catch((error) => {
+        // console.log(error)
         signInError.style.display = "block";
-        signInError.innerHTML =
-          "Sorry, Incorrect credentials! Try again or signUp";
+        signInError.innerHTML = JSON.parse(error.request.response).message;
         // console.log(error.request.response);
       });
   }
 });
-addTodo.addEventListener("click", (event) => {
-    const list = document.getElementById('todoList');
-    const newdiv = document.createElement("div")
-    newdiv.className="addedtodo";
-    newdiv.innerHTML=userNewTodo;
-    list.append(newdiv)
 
-    if (userNewTodo == "") {
-      todoError.style.display = "block";
-      todoError.innerHTML = "No todo to add, Write a Todo!";
+addTodo.addEventListener("click", async (event) => {
+  const list = document.getElementById("todoList");
+  const newdiv = document.createElement("div");
+  // console.log(sessionStorage.getItem("authKey").replace(/""/g, ' '))
+
+  try {
+    const response = await axios.get(`http://localhost:4000/todolist`, {
+      headers: { token: sessionStorage.getItem("authKey") },
+    });
+    console.log(response);
+    page1.style.display = "none";
+    page2.style.display = "none";
+    page3.style.display = "block";
+  } catch (error) {
+    signInError.style.display = "block";
+    if (error.response && error.response.status === 404) {
+      signInError.innerHTML = "User not found";
     } else {
-      todoError.style.display = "none";
-  
-      const userEmail = (signUserEmail) ? signUserEmail : NewUserEmail;
-  
-      axios
-        .put(`http://localhost:4000/todolist/${userEmail}`, {
-          todo: userNewTodo,
-        })
-        .then((response) => {
-          console.log(response);
-          page1.style.display = "none";
-          page2.style.display = "none";
-          page3.style.display = "block";
-        })
-        .catch((error) => {
-          signInError.style.display = "block";
-          if (error.response && error.response.status === 404) {
-            signInError.innerHTML = "User not found";
-          } else {
-            signInError.innerHTML = "Failed to update todo list.";
-          }
-          console.error("PUT request failed:", error);
-        });
+      signInError.innerHTML = "Failed to update todo list.";
     }
-  });
+    console.error("PUT request failed:", error);
+  }
+});
 
 signInButton.addEventListener("click", () => {
   page1.style.display = "none";
@@ -164,3 +152,7 @@ SignUpButton.addEventListener("click", () => {
   page2.style.display = "none";
   page3.style.display = "none";
 });
+
+window.onbeforeunload = function () {
+  sessionStorage.clear();
+};

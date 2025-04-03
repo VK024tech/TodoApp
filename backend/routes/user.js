@@ -3,43 +3,54 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const dataPath = "./data.txt";
-
-let userName = "";
-let userEmail = "";
-let userPassword = "";
-let userData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
-
-// function checkData(data){
-
-// }
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = "soullesssoul";
 
 router.use(express.json());
 
 router.post("/SignUp", (req, res, next) => {
-  const data = req.body;
-  userName = data.userName;
-  userEmail = data.userEmail;
-  userPassword = data.userPassword;
-
+  let userData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const NewUserData = req.body;
+  let userName = NewUserData.userName;
+  let userEmail = NewUserData.userEmail;
+  let userPassword = NewUserData.userPassword;
 
   const userExists = userData.some(
     (curr) => curr.userName === userName && curr.userEmail === userEmail
   );
 
-  if (userExists) {
-    return res
-      .status(409)
-      .send({ response: "You already have an account, Please signIn!" });
+  try {
+    if (userExists) {
+      res.status(403).send({
+        message: "Looks like you already have an Account! Sign in!",
+      });
+    } else if (userName && userEmail && userPassword) {
+      const token = jwt.sign(
+        { userName: userName, userEmail: userEmail },
+        JWT_SECRET
+      );
+
+   
+
+
+
+      fs.writeFileSync(dataPath, JSON.stringify([...userData, NewUserData]));
+      res.send({ token: token, message: "You're Signed up!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: "Something went wrong!",
+    });
   }
-  fs.writeFileSync(dataPath, JSON.stringify([...userData, data]));
-  res.send({ response: "SignUp Succesfull" });
 });
 
 router.post("/SignIn", (req, res, next) => {
-  const data = req.body;
-  userName = data.userName;
-  userPassword = data.userPassword;
-  userEmail = data.userEmail;
+  let userData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const signUserData = req.body;
+  // console.log(signUserData)
+  userName = signUserData.userName;
+  userEmail = signUserData.userEmail;
+  userPassword = signUserData.userPassword;
 
   const userExists = userData.some(
     (curr) =>
@@ -47,16 +58,32 @@ router.post("/SignIn", (req, res, next) => {
       (curr.userEmail === userEmail && curr.userPassword === userPassword)
   );
 
-  if (!userExists) {
-    return res
-      .status(409)
-      .send({ response: "Sorry, Incoorect credentials! Try again or signUp" });
-  } else {
-    // fs.writeFileSync(dataPath, JSON.stringify([...userData, data]));
-    res.send({ response: "SignIn Succesfull" });
+  // console.log(userExists)
+  // console.log(userData)
+
+  try {
+    if (userExists) {
+      const token = jwt.sign(
+        { userName: userName, userEmail: userEmail },
+        JWT_SECRET
+      );
+
+      console.log(token);
+
+
+      // fs.writeFileSync(dataPath, JSON.stringify([...userData, NewUserData]));
+      res.send({ token: token, message: "You're Signed In!" });
+    } else {
+      res.status(403).send({
+        message: "Sorry, Incorrect credentials! Try again or signUp",
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: "Something went wrong!",
+    });
   }
 });
 
-module.exports = router;
-
-
+module.exports.router = router;
+// module.exports.JWT_SECRET = JWT_SECRET;
