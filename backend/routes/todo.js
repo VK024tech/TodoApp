@@ -14,20 +14,18 @@ todo.use(express.json());
 
 authentication = (req, res, next) => {
   const token = req.headers.token;
-  const newToken = token.replaceAll('"', '')
+  const newToken = token.replaceAll('"', "");
   // console.log(token);
   const userDetails = jwt.verify(newToken, JWT_SECRET);
-  if(!token){
+  if (!token) {
     res.status(401).send({ message: "authorization failed!" });
   }
 
   try {
     req.body.userDetails = userDetails;
     console.log(userDetails);
-    next()
-  } catch (error) {
-    
-  }
+    next();
+  } catch (error) {}
 };
 
 todo.get("/todolist", authentication, (req, res, next) => {

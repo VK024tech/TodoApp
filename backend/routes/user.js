@@ -5,6 +5,8 @@ const fs = require("fs");
 const dataPath = "./data.txt";
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "soullesssoul";
+const {UserModel, TodoModel} = require("../db")
+
 
 router.use(express.json());
 
